@@ -36,7 +36,7 @@ function initGL() {
 function main() {
     initGL();
     initDataGL("basic");
-    initTexture("picture");
+    initTexture("video");
     loop();
 }
 
@@ -81,14 +81,6 @@ function initDataGL(id) {
 
     initSphere();
     
-    /*vertexBuffer=gl.createBuffer();
-    texBuffer = gl.createBuffer();*/
-
-    /*gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertex), gl.STATIC_DRAW);*/
-
-    /*gl.bindBuffer(gl.ARRAY_BUFFER, texBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texture), gl.STATIC_DRAW);*/
 }
 
 
@@ -124,7 +116,7 @@ function drawScene() {
     gl.bindTexture(gl.TEXTURE_2D, textureId);
 
     //tracage des triangles
-    //gl.drawArrays(gl.TRIANGLE, 0, 3);
+    //TODO revoir le nombre d'index qui a été trouvé un peu par hasard
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereElementBuffer); 
     gl.drawElements(gl.TRIANGLES, 2278, gl.UNSIGNED_SHORT, 0);
 
@@ -136,10 +128,14 @@ function drawScene() {
 
 function updateData() {
 
-    angle+=0.01;
+    //angle+=0.01;
     modelview.setIdentity();
     modelview.translate(0,0,-4);
-    modelview.rotateX(angle);
+    //modelview.rotateX(angle);
+    var imageData = document.getElementById( "video" );
+    gl.activeTexture( gl.TEXTURE0 );
+    gl.bindTexture( gl.TEXTURE_2D, textureId );
+    gl.texImage2D( gl.TEXTURE_2D, 0 , gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, imageData );
 }
 
 function loop() {
@@ -149,14 +145,17 @@ function loop() {
 }
 
 function initTexture( id ){
-     var imageData=document.getElementById ( id );
-     textureId = gl.createTexture() ;
-     gl.activeTexture ( gl.TEXTURE0 );
-     gl.bindTexture ( gl.TEXTURE_2D, textureId ) ;
+     var imageData = document.getElementById( id );
+     textureId = gl.createTexture();
+
+     gl.activeTexture( gl.TEXTURE0 );
+     gl.bindTexture( gl.TEXTURE_2D, textureId ) ;
+
      gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER , gl.LINEAR );
      gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER , gl.LINEAR );
-     gl.texParameteri ( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE ) ;
-     gl.texParameteri ( gl.TEXTURE_2D, gl . TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE ) ;
+     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE ) ;
+     gl.texParameteri( gl.TEXTURE_2D, gl . TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE ) ;
+
      gl.texImage2D ( gl.TEXTURE_2D, 0 , gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, imageData ) ;
  }
 
