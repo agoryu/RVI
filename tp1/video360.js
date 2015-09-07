@@ -130,8 +130,9 @@ function updateData() {
 
     //angle+=0.01;
     modelview.setIdentity();
-    modelview.translate(0,0,-4);
-    //modelview.rotateX(angle);
+    //TODO attention triche pour remettre l'image à l'endroit
+    modelview.rotateX(180);
+    
     var imageData = document.getElementById( "video" );
     gl.activeTexture( gl.TEXTURE0 );
     gl.bindTexture( gl.TEXTURE_2D, textureId );
