@@ -10,7 +10,11 @@ var projection;
 var angle = 0;
 
 var vertex;
+var texture;
 var index;
+
+var sphereElementBuffer;
+var sphereVertexBuffer;
 
 function initGL() {
     canvas=document.getElementById( "webglCanvas");
@@ -76,16 +80,15 @@ function initDataGL(id) {
     projection.setFrustum(-0.1, 0.1, -0.1, 0.1, 0.1, 1000);
 
     initSphere();
-    //var  vertex = [-0.5,0.5,0.0, 0.5,-0.5,0.0, -0.7,-0.9,0.0];
-    var texture = [0,0, 0,1, 1,0, 1,1]
-    vertexBuffer=gl.createBuffer();
-    texBuffer = gl.createBuffer();
+    
+    /*vertexBuffer=gl.createBuffer();
+    texBuffer = gl.createBuffer();*/
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertex), gl.STATIC_DRAW);
+    /*gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertex), gl.STATIC_DRAW);*/
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, texBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texture), gl.STATIC_DRAW);
+    /*gl.bindBuffer(gl.ARRAY_BUFFER, texBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texture), gl.STATIC_DRAW);*/
 }
 
 
@@ -97,31 +100,37 @@ function drawScene() {
 
     gl.useProgram(basicProgramShader);
 
+    //association avec les attribut du shader
     var vertexLocation = gl.getAttribLocation(basicProgramShader , "vertex");
-    /*var texCoordLocation = gl.getAttribLocation(basicProgramShader , "texCoord");
+    var texCoordLocation = gl.getAttribLocation(basicProgramShader , "texCoord");
     var textureLocation = gl.getUniformLocation(basicProgramShader, "texture0");
 
+    //gestion des attribut uniforme
     gl.uniform1i(textureLocation, 0);
     gl.uniformMatrix4fv(modelviewLocation, gl.FALSE, modelview.fv);
-    gl.uniformMatrix4fv(projectionLocation, gl.FALSE, projection.fv);*/
+    gl.uniformMatrix4fv(projectionLocation, gl.FALSE, projection.fv);
 
+    //gestion du vertex buffer
     gl.enableVertexAttribArray(vertexLocation);
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexBuffer);
     gl.vertexAttribPointer(vertexLocation, 3, gl.FLOAT, gl.FALSE, 0, 0);
 
-    gl.drawArrays(gl.TRIANGLE, 0, 400);
-    /*gl.enableVertexAttribArray(texCoordLocation);
+     //gestion de la texture 
+    gl.enableVertexAttribArray(texCoordLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, texBuffer);
     gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, gl.FALSE, 0, 0);
-
-
+    
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, textureId);
 
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    //tracage des triangles
+    //gl.drawArrays(gl.TRIANGLE, 0, 3);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereElementBuffer); 
+    gl.drawElements(gl.TRIANGLES, 2278, gl.UNSIGNED_SHORT, 0);
 
+    //nettoyage
     gl.disableVertexAttribArray(vertexLocation);
-    gl.disableVertexAttribArray(texCoordLocation);*/
+    gl.disableVertexAttribArray(texCoordLocation);
     gl.useProgram (null);    
 }
 
@@ -153,6 +162,7 @@ function initTexture( id ){
 
 function initSphere() {
     vertex = new Array();
+    texture = new Array();
     index = new Array();
 
     var nbSlice = 20;
@@ -171,17 +181,32 @@ function initSphere() {
             vertex.push(x);
             vertex.push(y);
             vertex.push(z);
+
+            texture.push((nbSlice-j) / nbSlice);
+            texture.push((nbStack-i) / nbStack);
         }
     }
 
+    sphereVertexBuffer = gl.createBuffer(); 
+    gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexBuffer); 
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertex), gl.STATIC_DRAW);
+
+    texBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texture), gl.STATIC_DRAW);
+
     var nbPoint = nbSlice * nbStack;
-    for(var i=0; i<nbPoint; i++) {
-        index.push(i+nbSlice);
-        index.push(i);
-        index.push(i+1);
-        index.push(i+1);
-        index.push(i+1+nbSlice);
-        index.push(i+nbSlice);
+    for(var k=0; k<nbPoint; k++) {
+        index.push(k+nbSlice);
+        index.push(k);
+        index.push(k+1);
+        index.push(k+1);
+        index.push(k+1+nbSlice);
+        index.push(k+nbSlice);
     }
+
+    sphereElementBuffer = gl.createBuffer(); 
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereElementBuffer); 
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(index), gl.STATIC_DRAW);
 
 }
