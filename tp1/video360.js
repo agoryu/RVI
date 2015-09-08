@@ -33,10 +33,15 @@ function initGL() {
     }
 }
 
-function main() {
+function main(event) {
     initGL();
     initDataGL("basic");
     initTexture("video");
+
+    canvas = document.getElementById("webglCanvas");
+    canvas.addListener("mousedown", handleMouseDown, false);
+    canvas.addListener("mousemove", handleMouseMove, false);
+    canvas.addListener("mouseup", handleMouseUp, false);
     loop();
 }
 
@@ -126,13 +131,14 @@ function drawScene() {
     gl.useProgram (null);    
 }
 
-function updateData() {
+function updateData(event) {
 
     //angle+=0.01;
     modelview.setIdentity();
-    //TODO attention triche pour remettre l'image à l'endroit
-    //modelview.rotateX(90);
-    
+
+    modelview.rotateX(oldMouseX);
+    modelview.rotateY(oldMouseY);
+
     var imageData = document.getElementById( "video" );
     gl.activeTexture( gl.TEXTURE0 );
     gl.bindTexture( gl.TEXTURE_2D, textureId );
@@ -208,5 +214,13 @@ function initSphere() {
     sphereElementBuffer = gl.createBuffer(); 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereElementBuffer); 
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(index), gl.STATIC_DRAW);
+
+}
+
+function handleMouseDown(event) {
+    
+    oldMouseX = event.layerX - canvas.offsetLeft;
+    oldMouseY = (canvas.heigth-1.0)-(event.layerY-canvas.offsetTop);
+    mouseDown = true;
 
 }
