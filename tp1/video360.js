@@ -182,8 +182,8 @@ function initSphere() {
             vertex.push(y);
             vertex.push(z);
 
-            texture.push((nbSlice-j) / nbSlice);
-            texture.push((nbStack-i) / nbStack);
+            texture.push(1 - (nbSlice-j) / nbSlice);
+            texture.push(1 - (nbStack-i) / nbStack);
         }
     }
 
