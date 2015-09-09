@@ -16,6 +16,10 @@ var index;
 var sphereElementBuffer;
 var sphereVertexBuffer;
 
+var oldMouseX;
+var oldMouseY;
+var mouseDown;
+
 function initGL() {
     canvas=document.getElementById( "webglCanvas");
     gl=canvas.getContext("webgl");
@@ -39,9 +43,10 @@ function main(event) {
     initTexture("video");
 
     canvas = document.getElementById("webglCanvas");
-    canvas.addListener("mousedown", handleMouseDown, false);
-    canvas.addListener("mousemove", handleMouseMove, false);
-    canvas.addListener("mouseup", handleMouseUp, false);
+    canvas.addEventListener("mousedown", handleMouseDown, false);
+    canvas.addEventListener("mousemove", handleMouseMove, false);
+    canvas.addEventListener("mouseup", handleMouseUp, false);
+    mouseDown = false;
     loop();
 }
 
@@ -136,8 +141,8 @@ function updateData(event) {
     //angle+=0.01;
     modelview.setIdentity();
 
-    modelview.rotateX(oldMouseX);
-    modelview.rotateY(oldMouseY);
+    //modelview.rotateX(oldMouseX);
+    //modelview.rotateY(oldMouseY);
 
     var imageData = document.getElementById( "video" );
     gl.activeTexture( gl.TEXTURE0 );
@@ -177,8 +182,8 @@ function initSphere() {
     for(var i=0; i<nbStack; i++) {
 
         for(var j=0; j<nbSlice; j++) {
-            var theta = (2 * Math.PI * j) / nbSlice;
-            var phi = (Math.PI * i) / nbStack;
+            var theta = (2 * Math.PI * j) / (nbSlice-1);
+            var phi = (Math.PI * i) / (nbStack-1);
 
             var x = Math.cos(theta) * Math.sin(phi);
             var y = Math.cos(phi);
@@ -219,8 +224,37 @@ function initSphere() {
 
 function handleMouseDown(event) {
     
+    canvas=document.getElementById( "webglCanvas");
     oldMouseX = event.layerX - canvas.offsetLeft;
-    oldMouseY = (canvas.heigth-1.0)-(event.layerY-canvas.offsetTop);
+    oldMouseY = (canvas.heigth - 1.0) - (event.layerY - canvas.offsetTop);
+    console.log(oldMouseY);
     mouseDown = true;
 
 }
+
+function handleMouseMove(event) {
+
+    if(mouseDown) {
+        modelview.setIdentity();
+        canvas=document.getElementById( "webglCanvas");
+        
+        var moveX = (event.layerX - canvas.offsetLeft) - oldMouseX;
+        var moveY = ((canvas.heigth-1.0)-(event.layerY-canvas.offsetTop)) - oldMouseY;
+
+        modelview.rotateX(moveX/100);
+        //modelview.rotateY(moveY/100);
+
+        var imageData = document.getElementById( "video" );
+        gl.activeTexture( gl.TEXTURE0 );
+        gl.bindTexture( gl.TEXTURE_2D, textureId );
+        gl.texImage2D( gl.TEXTURE_2D, 0 , gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, imageData );
+
+   }
+}
+
+function handleMouseUp(event) {
+
+    mouseDown = false;
+
+}
+
