@@ -20,6 +20,8 @@ var oldMouseX;
 var oldMouseY;
 var mouseX;
 var mouseY;
+var moveX;
+var moveY;
 var mouseDown;
 
 function initGL() {
@@ -49,8 +51,6 @@ function main(event) {
     canvas.addEventListener("mousemove", handleMouseMove, false);
     canvas.addEventListener("mouseup", handleMouseUp, false);
     mouseDown = false;
-    oldMouseX=0;
-    oldMouseY=0;
     mouseX=0;
     mouseY=0;
     loop();
@@ -227,9 +227,9 @@ function initSphere() {
 
 function handleMouseDown(event) {
  
-    mouseX = oldMouseX;
-    mouseY = oldMouseY;
-    
+    oldMouseX = event.layerX - canvas.offsetLeft;
+    oldMouseY = (canvas.height - 1.0) - (event.layerY - canvas.offsetTop);
+
     mouseDown = true;
 
 }
@@ -238,18 +238,22 @@ function handleMouseMove(event) {
 
     if(mouseDown) {
 
-        //mouseX = event.layerX - canvas.offsetLeft;
-        //mouseY = (canvas.height - 1.0) - (event.layerY - canvas.offsetTop);
-        mouseX = (event.layerX)/100;
-        mouseY = (event.layerY)/100;
+        mouseX = event.layerX - canvas.offsetLeft;
+        mouseY = (canvas.height - 1.0) - (event.layerY - canvas.offsetTop);
+        
+	moveX += (mouseX - oldMouseX)/100;
+        moveY += (mouseY - oldMouseY)/100;
+
+        oldMouseX = mouseX;
+        oldMouseY = mouseY;
 
    }
 }
 
 function handleMouseUp(event) {
 
-    oldMouseX = mouseX;
-    oldMouseY = mouseY;
+    oldMouseX = event.layerX;
+    oldMouseY = event.layerY;
     mouseDown = false;
 
 }
