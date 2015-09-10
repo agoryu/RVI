@@ -18,6 +18,8 @@ var sphereVertexBuffer;
 
 var oldMouseX;
 var oldMouseY;
+var mouseX;
+var mouseY;
 var mouseDown;
 
 function initGL() {
@@ -47,6 +49,10 @@ function main(event) {
     canvas.addEventListener("mousemove", handleMouseMove, false);
     canvas.addEventListener("mouseup", handleMouseUp, false);
     mouseDown = false;
+    oldMouseX=0;
+    oldMouseY=0;
+    mouseX=0;
+    mouseY=0;
     loop();
 }
 
@@ -136,13 +142,12 @@ function drawScene() {
     gl.useProgram (null);    
 }
 
-function updateData(event) {
+function updateData() {
 
-    //angle+=0.01;
     modelview.setIdentity();
 
-    //modelview.rotateX(oldMouseX);
-    //modelview.rotateY(oldMouseY);
+    modelview.rotateX(mouseY);
+    modelview.rotateY(mouseX);
 
     var imageData = document.getElementById( "video" );
     gl.activeTexture( gl.TEXTURE0 );
@@ -189,9 +194,7 @@ function initSphere() {
             var y = Math.cos(phi);
             var z = Math.sin(theta) * Math.sin(phi);
 
-            vertex.push(x);
-            vertex.push(y);
-            vertex.push(z);
+            vertex.push(x, y, z);
 
             texture.push(1 - (nbSlice-j) / nbSlice);
             texture.push(1 - (nbStack-i) / nbStack);
@@ -223,11 +226,10 @@ function initSphere() {
 }
 
 function handleMouseDown(event) {
+ 
+    mouseX = oldMouseX;
+    mouseY = oldMouseY;
     
-    canvas=document.getElementById( "webglCanvas");
-    oldMouseX = event.layerX - canvas.offsetLeft;
-    oldMouseY = (canvas.heigth - 1.0) - (event.layerY - canvas.offsetTop);
-    console.log(oldMouseY);
     mouseDown = true;
 
 }
@@ -235,25 +237,19 @@ function handleMouseDown(event) {
 function handleMouseMove(event) {
 
     if(mouseDown) {
-        modelview.setIdentity();
-        canvas=document.getElementById( "webglCanvas");
-        
-        var moveX = (event.layerX - canvas.offsetLeft) - oldMouseX;
-        var moveY = ((canvas.heigth-1.0)-(event.layerY-canvas.offsetTop)) - oldMouseY;
 
-        modelview.rotateX(moveX/100);
-        //modelview.rotateY(moveY/100);
-
-        var imageData = document.getElementById( "video" );
-        gl.activeTexture( gl.TEXTURE0 );
-        gl.bindTexture( gl.TEXTURE_2D, textureId );
-        gl.texImage2D( gl.TEXTURE_2D, 0 , gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, imageData );
+        //mouseX = event.layerX - canvas.offsetLeft;
+        //mouseY = (canvas.height - 1.0) - (event.layerY - canvas.offsetTop);
+        mouseX = (event.layerX)/100;
+        mouseY = (event.layerY)/100;
 
    }
 }
 
 function handleMouseUp(event) {
 
+    oldMouseX = mouseX;
+    oldMouseY = mouseY;
     mouseDown = false;
 
 }
