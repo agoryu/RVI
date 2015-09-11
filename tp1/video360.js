@@ -1,5 +1,6 @@
 window.addEventListener('load', main, false);
 
+var canvas;
 var gl;
 var basicProgramShader;
 var vertexBuffer;
@@ -41,19 +42,22 @@ function initGL() {
     }
 }
 
-function main(event) {
+function main() {
     initGL();
     initDataGL("basic");
     initTexture("video");
+    initEvent();
 
-    canvas = document.getElementById("webglCanvas");
+    loop();
+}
+
+function initEvent() {
     canvas.addEventListener("mousedown", handleMouseDown, false);
     canvas.addEventListener("mousemove", handleMouseMove, false);
     canvas.addEventListener("mouseup", handleMouseUp, false);
     mouseDown = false;
     mouseX=0;
     mouseY=0;
-    loop();
 }
 
 function getShader(id) { 
@@ -144,15 +148,16 @@ function drawScene() {
 
 function updateData() {
 
-    modelview.setIdentity();
-
-    modelview.rotateX(mouseY);
-    modelview.rotateY(mouseX);
-
     var imageData = document.getElementById( "video" );
     gl.activeTexture( gl.TEXTURE0 );
     gl.bindTexture( gl.TEXTURE_2D, textureId );
     gl.texImage2D( gl.TEXTURE_2D, 0 , gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, imageData );
+
+    modelview.setIdentity();
+
+    modelview.rotateX(-mouseY);
+    modelview.rotateY(mouseX);
+
 }
 
 function loop() {
@@ -241,7 +246,7 @@ function handleMouseMove(event) {
         mouseX = event.layerX - canvas.offsetLeft;
         mouseY = (canvas.height - 1.0) - (event.layerY - canvas.offsetTop);
         
-	moveX += (mouseX - oldMouseX)/100;
+	    moveX += (mouseX - oldMouseX)/100;
         moveY += (mouseY - oldMouseY)/100;
 
         oldMouseX = mouseX;
@@ -252,8 +257,6 @@ function handleMouseMove(event) {
 
 function handleMouseUp(event) {
 
-    oldMouseX = event.layerX;
-    oldMouseY = event.layerY;
     mouseDown = false;
 
 }
