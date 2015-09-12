@@ -19,14 +19,13 @@ var sphereVertexBuffer;
 
 var oldMouseX;
 var oldMouseY;
-var mouseX;
-var mouseY;
 var moveX;
 var moveY;
 var mouseDown;
 
 function initGL() {
     canvas=document.getElementById( "webglCanvas");
+
     gl=canvas.getContext("webgl");
     if(!gl){
         alert ( " error in initialisation of context" ) ;
@@ -56,8 +55,10 @@ function initEvent() {
     canvas.addEventListener("mousemove", handleMouseMove, false);
     canvas.addEventListener("mouseup", handleMouseUp, false);
     mouseDown = false;
-    mouseX=0;
-    mouseY=0;
+	moveX=0.0;
+	moveY=0.0;
+	oldMouseX=0.0;
+	oldMouseY=0.0;
 }
 
 function getShader(id) { 
@@ -93,14 +94,13 @@ function createProgram(id) {
 
 function initDataGL(id) {
     basicProgramShader=createProgram(id);
+    initSphere();
 
     modelview = new Mat4();
     projection = new Mat4();
 
     projection.setFrustum(-0.1, 0.1, -0.1, 0.1, 0.1, 1000);
 
-    initSphere();
-    
 }
 
 
@@ -136,9 +136,8 @@ function drawScene() {
     gl.bindTexture(gl.TEXTURE_2D, textureId);
 
     //tracage des triangles
-    //TODO revoir le nombre d'index qui a été trouvé un peu par hasard
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereElementBuffer); 
-    gl.drawElements(gl.TRIANGLES, 2278, gl.UNSIGNED_SHORT, 0);
+    gl.drawElements(gl.TRIANGLES, 19*19*6, gl.UNSIGNED_SHORT, 0);
 
     //nettoyage
     gl.disableVertexAttribArray(vertexLocation);
@@ -155,8 +154,8 @@ function updateData() {
 
     modelview.setIdentity();
 
-    modelview.rotateX(-mouseY);
-    modelview.rotateY(mouseX);
+    modelview.rotateX(-moveY);
+    modelview.rotateY(moveX);
 
 }
 
@@ -200,9 +199,7 @@ function initSphere() {
             var z = Math.sin(theta) * Math.sin(phi);
 
             vertex.push(x, y, z);
-
-            texture.push(1 - (nbSlice-j) / nbSlice);
-            texture.push(1 - (nbStack-i) / nbStack);
+			texture.push(1-theta/(2*Math.PI), phi/(Math.PI));
         }
     }
 
@@ -243,8 +240,8 @@ function handleMouseMove(event) {
 
     if(mouseDown) {
 
-        mouseX = event.layerX - canvas.offsetLeft;
-        mouseY = (canvas.height - 1.0) - (event.layerY - canvas.offsetTop);
+        var mouseX = event.layerX - canvas.offsetLeft;
+        var mouseY = (canvas.height - 1.0) - (event.layerY - canvas.offsetTop);
         
 	    moveX += (mouseX - oldMouseX)/100;
         moveY += (mouseY - oldMouseY)/100;
