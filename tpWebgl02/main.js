@@ -27,6 +27,7 @@ var oldMouseY;
 var oldMoveX;
 var oldMoveY;
 var isNewClick;
+var offset;
 
 function main(event) {
 	init();
@@ -60,6 +61,7 @@ function init() {
   oldMoveX = 0;
   oldMoveY = 0;
   isNewClick = false;
+  offset = new THREE.Vector3(0,0,0)
 }
 
 function addObject1() {
@@ -125,7 +127,7 @@ function updateData() {
   posY = oldMouseY / canvas.height * 2 - 1;
   ray.setFromCamera(new THREE.Vector2(posX,posY),camera);
 
-  var arrayIntersect=ray.intersectObjects(scene.children); // intersection rayon avec tous les enfants de la scène : retourne un tableau d'informations sur les objets intersectés
+  var arrayIntersect = ray.intersectObjects(scene.children); // intersection rayon avec tous les enfants de la scène : retourne un tableau d'informations sur les objets intersectés
 
   if (arrayIntersect.length>0) { // s'il y a des objets intersectés
     var first = arrayIntersect[0]; // on prend le premier (intersections ordonnées de la plus proche à la plus lointaine de l'origine du rayon
@@ -136,26 +138,28 @@ function updateData() {
 
     /* evite les decalage entre 2 click */
     if(isNewClick) {
-      oldMoveX = intersect.x;
-      oldMoveY = intersect.y;
+      //oldMoveX = intersect.x;
+      //oldMoveY = intersect.y;
+      offset.x = first.point.x - first.object.position.x;
+      offset.y = first.point.y - first.object.position.y;
       isNewClick = false;
     }
 
     /* calcul du delta */
-    moveX = intersect.x - oldMoveX;
-    moveY = intersect.y - oldMoveY;
-    var vec = new THREE.Vector3(moveX, moveY, 0);
-    //camera.worldToLocal(vec);
+    //moveX = intersect.x - oldMoveX;
+    //moveY = intersect.y - oldMoveY;
+    moveX = intersect.x - offset.x;
+    moveY = intersect.y - offset.y;
 
     /* application du delta parallelement à la camera */
     camera.worldToLocal(first.object.position);
-    first.object.position.x += vec.x;
-    first.object.position.y += vec.y;
+    first.object.position.x = moveX;
+    first.object.position.y = moveY;
     camera.localToWorld(first.object.position);
 
     /* mise a jour des anciens point */
-    oldMoveX = intersect.x;
-    oldMoveY = intersect.y;
+    //oldMoveX = intersect.x;
+    //oldMoveY = intersect.y;
   }
 }
 
