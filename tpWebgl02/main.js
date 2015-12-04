@@ -4,7 +4,7 @@
  *
  * **/
 
- window.addEventListener('load',main,false);
+window.addEventListener('load',main,false);
 
 var renderer;
 var canvas;
@@ -20,12 +20,8 @@ var velocity;
 
 /* evenement */
 var mouseDown;
-var moveX;
-var moveY;
-var oldMouseX;
-var oldMouseY;
-var oldMoveX;
-var oldMoveY;
+var mouseX;
+var mouseY;
 var isNewClick;
 var offset;
 
@@ -58,8 +54,6 @@ function init() {
   initEvent();
 
   //deplacement cube
-  oldMoveX = 0;
-  oldMoveY = 0;
   isNewClick = false;
   offset = new THREE.Vector3(0,0,0)
 }
@@ -80,11 +74,6 @@ function addObject1() {
 
 function addObject2() {
 
-  //test Raycast
-  /*cube = new THREE.Mesh(new THREE.BoxGeometry(1.0,1.0,1.0), // rayon, nombre de méridiens et parallèles
-              new THREE.MeshLambertMaterial( { color : Math.random()*0xFFFFFF})); // réflexion diffuse
-  scene.add(cube);*/
-
   for(var i=0; i<1000; i++) {
     cube = new THREE.Mesh(new THREE.BoxGeometry(1.0,1.0,1.0), // rayon, nombre de méridiens et parallèles
                 new THREE.MeshLambertMaterial( { color : Math.random()*0xFFFFFF})); // réflexion diffuse
@@ -99,7 +88,6 @@ function addObject2() {
 }
 
 function updateData() {
-  //box.rotateOnAxis((new THREE.Vector3(0,0,1)).normalize(),0.01);
 
   if (pitchIncUpdate) {
     camera.rotateOnAxis((new THREE.Vector3(-1,0,0)).normalize(), 0.01);
@@ -123,13 +111,13 @@ function updateData() {
 
   //ray=new THREE.Raycaster(new THREE.Vector3(0,0,10),new THREE.Vector3(0,0,-1),0,1000); // rayon d'origine (0,0,0) et de direction(0,0,-1); exprimés dans le repère du monde !
   var ray = new THREE.Raycaster();
-  posX = oldMouseX / canvas.width * 2 - 1;
-  posY = oldMouseY / canvas.height * 2 - 1;
+  posX = mouseX / canvas.width * 2 - 1;
+  posY = mouseY / canvas.height * 2 - 1;
   ray.setFromCamera(new THREE.Vector2(posX,posY),camera);
 
   var arrayIntersect = ray.intersectObjects(scene.children); // intersection rayon avec tous les enfants de la scène : retourne un tableau d'informations sur les objets intersectés
 
-  if (arrayIntersect.length>0) { // s'il y a des objets intersectés
+  if (arrayIntersect.length>0 && mouseDown) { // s'il y a des objets intersectés
     var first = arrayIntersect[0]; // on prend le premier (intersections ordonnées de la plus proche à la plus lointaine de l'origine du rayon
 
     /* detection de l'intersection */
@@ -138,28 +126,22 @@ function updateData() {
 
     /* evite les decalage entre 2 click */
     if(isNewClick) {
-      //oldMoveX = intersect.x;
-      //oldMoveY = intersect.y;
       offset.x = first.point.x - first.object.position.x;
       offset.y = first.point.y - first.object.position.y;
       isNewClick = false;
     }
 
     /* calcul du delta */
-    //moveX = intersect.x - oldMoveX;
-    //moveY = intersect.y - oldMoveY;
-    moveX = intersect.x - offset.x;
-    moveY = intersect.y - offset.y;
+    var moveX = intersect.x - offset.x;
+    var moveY = intersect.y - offset.y;
+    var move = new THREE.Vector3(moveX,moveY,0);
+    camera.worldToLocal(move);
 
     /* application du delta parallelement à la camera */
     camera.worldToLocal(first.object.position);
-    first.object.position.x = moveX;
-    first.object.position.y = moveY;
+    first.object.position.x = move.x;
+    first.object.position.y = move.y;
     camera.localToWorld(first.object.position);
-
-    /* mise a jour des anciens point */
-    //oldMoveX = intersect.x;
-    //oldMoveY = intersect.y;
   }
 }
 
@@ -228,14 +210,8 @@ function handleMouseUp(event) {
 function handleMouseMove(event) {
 
     if(mouseDown) {
-      var mouseX = event.layerX - canvas.offsetLeft;
-      var mouseY = (canvas.height - 1.0) - (event.layerY - canvas.offsetTop);
-
-      moveX += (mouseX - oldMouseX)/100;
-      moveY += (mouseY - oldMouseY)/100;
-
-      oldMouseX = mouseX;
-      oldMouseY = mouseY;
+      mouseX = event.layerX - canvas.offsetLeft;
+      mouseY = (canvas.height - 1.0) - (event.layerY - canvas.offsetTop);
     }
 
 }
