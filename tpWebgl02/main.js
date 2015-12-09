@@ -126,7 +126,8 @@ function updateData() {
 
 		/* detection de l'intersection */
 		plane = new THREE.Plane();
-		plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0,0,1), first.object.position);
+		var normal = camera.getWorldDirection();//camera.worldToLocal(new THREE.Vector3(0,0,1));
+		plane.setFromNormalAndCoplanarPoint(normal, first.object.position);
 		var intersect = ray.ray.intersectPlane(plane);
 
 		/* evite les decalage entre 2 click */
