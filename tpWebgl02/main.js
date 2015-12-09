@@ -115,7 +115,6 @@ function updateData() {
 	//position souris
 	posX = mouseX / canvas.width * 2 - 1;
 	posY = mouseY / canvas.height * 2 - 1;
-	posZ = mouseZ / 1000 * 2 - 1;
 
 	//gestion du raycast
 	var ray = new THREE.Raycaster();
@@ -142,7 +141,8 @@ function updateData() {
 		//camera.worldToLocal(first.object.position);
 		first.object.position.x = intersect.x - offset.x;
 		first.object.position.y = intersect.y - offset.y;
-		first.object.position.z += posZ;
+		first.object.position.z += mouseZ;
+		mouseZ = 0;
 		//camera.localToWorld(first.object.position);
 	}
 }
@@ -219,8 +219,8 @@ function handleMousewheel(e) {
   console.log("mousewheel",e.deltaY);
 
 	if(e.deltaY > 0)
-		mouseZ++;
+		mouseZ = 1;
 	if(e.deltaY < 0)
-		mouseZ--;
+		mouseZ = -1;
   e.preventDefault(); // interdit la remontée de l'event
 }
