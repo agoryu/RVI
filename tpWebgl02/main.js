@@ -135,14 +135,15 @@ function updateData() {
 			//offset dans le repere monde
 			offset.x = first.point.x - first.object.position.x;
 			offset.y = first.point.y - first.object.position.y;
+			offset.z = first.point.z - first.object.position.z;
 			isNewClick = false;
 		}
 
 		/* application du delta parallelement à la camera */
 		//camera.worldToLocal(first.object.position);
-		first.object.position.x = intersect.x - offset.x;
-		first.object.position.y = intersect.y - offset.y;
-		first.object.position.z += mouseZ;
+		first.object.position.x = intersect.x - normal.x * mouseZ;
+		first.object.position.y = intersect.y - normal.y * mouseZ;
+		first.object.position.z = intersect.z - normal.z * mouseZ;
 		mouseZ = 0;
 		//camera.localToWorld(first.object.position);
 	}
